@@ -144,6 +144,29 @@ This diagram illustrates the flow of data between the different components of th
 4. Traces are sent to the OpenTelemetry Collector, which forwards them to Jaeger.
 5. Grafana collects data from both Prometheus and Jaeger for visualization and monitoring.
 
+## Continuous Integration
+
+This project uses GitHub Actions for continuous integration. On every push to the `main` branch and for every pull request, the following steps are automatically run:
+
+1. Swagger documentation is generated
+2. Go tests are executed
+3. `go vet` is run to check for potential issues
+4. `staticcheck` is used for additional static analysis
+
+You can see the detailed configuration in the `.github/workflows/go-tests.yml` file.
+
+To run these checks locally:
+
+```bash
+cd app
+swag init
+go test -v ./...
+go vet ./...
+staticcheck ./...  # You need to install staticcheck first: go install honnef.co/go/tools/cmd/staticcheck@latest
+```
+
+Note: Make sure you have `swag` installed locally to generate Swagger docs: `go install github.com/swaggo/swag/cmd/swag@latest`
+
 
 ## Contributing
 
