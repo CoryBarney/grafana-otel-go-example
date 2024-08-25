@@ -117,6 +117,21 @@ Note: The Locust service is configured with an increased open file limit (65536)
 - Monitor the resource usage of your containers, especially during load testing, to ensure your host system can handle the load.
 - Consider adjusting the retention periods and sample rates in Prometheus and Jaeger for longer-term data storage in a production environment.
 
+## Architecture
+
+Below is a high-level overview of the system architecture:
+
+![Go Application with Observability Stack](./docs/go_application_with_observability_stack.png)
+
+This diagram illustrates the flow of data between the different components of the system:
+
+1. Locust sends HTTP requests to the Go Application for load testing.
+2. The Go Application processes requests and generates observability data.
+3. Metrics are sent to Prometheus for storage and querying.
+4. Traces are sent to the OpenTelemetry Collector, which forwards them to Jaeger.
+5. Grafana collects data from both Prometheus and Jaeger for visualization and monitoring.
+
+
 ## Contributing
 
 Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
