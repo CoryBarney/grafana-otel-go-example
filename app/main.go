@@ -166,6 +166,16 @@ func RandomDelay(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// FailingEndpoint godoc
+// @Summary Endpoint that always fails
+// @Description This endpoint always returns a 500 Internal Server Error
+// @Produce json
+// @Success 500 {string} string "Internal Server Error"
+// @Router /fail [get]
+func FailingEndpoint(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+}
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -188,6 +198,7 @@ func main() {
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.HandleFunc("/sentence", GenerateSentence).Methods(http.MethodPost)
 	api.HandleFunc("/random-delay", RandomDelay).Methods(http.MethodGet)
+	api.HandleFunc("/fail", FailingEndpoint).Methods(http.MethodGet)
 
 	// Add Prometheus metrics endpoint
 	r.Handle("/metrics", promhttp.Handler())
