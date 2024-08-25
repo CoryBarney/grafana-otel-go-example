@@ -12,7 +12,7 @@ services:
     image: otel/opentelemetry-collector:0.87.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - .otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP http receiver
@@ -58,7 +58,7 @@ services:
      - "8089:8089"
     volumes:
      - ./locust/locustfile.py:/mnt/locust/locustfile.py
-    command: -f /mnt/locust/locustfile.py --host http://app:8080 --users 10 --spawn-rate 1 --run-time 1h --headless
+    command: -f /mnt/locust/locustfile.py --host http://app:8080 --users 10 --spawn-rate 1 --run-time 1h
     environment:
      - LOCUST_HOST=http://app:8080
     depends_on:
