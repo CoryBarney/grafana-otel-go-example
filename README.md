@@ -52,20 +52,33 @@ This project demonstrates a Go application integrated with a comprehensive obser
 
 To work on the Go application locally:
 
-1. Install dependencies:
+
+1. Change to application directory:
+    ```
+    cd app
+    ```
+
+2. Install dependencies:
    ```
    go mod download
    ```
 
-2. Run the application:
+3. Run the application:
    ```
    go run main.go
    ```
 
-3. To update Swagger documentation:
+4. To update Swagger documentation:
    ```
    swag init
    ```
+
+5. To run tests:
+   ```
+   go test -v
+   ```
+
+  Note: The tests use a no-op tracer to handle tracing in the test environment. This allows the tests to run without a full OpenTelemetry setup.
 
 ## Load Testing
 

@@ -143,15 +143,12 @@ func GenerateSentence(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} DelayedResponse
 // @Router /random-delay [get]
 func RandomDelay(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-	defer func() {
-		duration := time.Since(start).Seconds()
-		requestDuration.WithLabelValues("GET", "/api/v1/random-delay").Observe(duration)
-	}()
-
 	ctx := r.Context()
-	_, span := tracer.Start(ctx, "RandomDelay")
-	defer span.End()
+	var span trace.Span
+	if tracer != nil {
+		_, span = tracer.Start(ctx, "RandomDelay")
+		defer span.End()
+	}
 
 	delay := rand.Intn(501) // Random delay between 0-500ms
 	time.Sleep(time.Duration(delay) * time.Millisecond)
@@ -161,11 +158,12 @@ func RandomDelay(w http.ResponseWriter, r *http.Request) {
 		Delay:   delay,
 	}
 
-	span.SetAttributes(attribute.Int("delay.ms", delay))
+	if span != nil {
+		span.SetAttributes(attribute.Int("delay.ms", delay))
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-	requestCounter.WithLabelValues("GET", "/api/v1/random-delay", "200").Inc()
 }
 
 func main() {
