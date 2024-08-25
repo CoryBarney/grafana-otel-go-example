@@ -1,6 +1,6 @@
 module simple_http_sentence
 
-go 1.22.6
+go 1.21
 
 require (
 	github.com/gorilla/mux v1.8.1
