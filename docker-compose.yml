@@ -12,7 +12,7 @@ services:
     image: otel/opentelemetry-collector:0.87.0
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - .otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP http receiver
@@ -31,9 +31,9 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     volumes:
-      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
-      - ./grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
-      - ./dashboards:/var/lib/grafana/dashboards
+      - ./grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - ./grafana/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
 
   # Prometheus
   prometheus:
@@ -41,7 +41,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
 
@@ -57,9 +57,13 @@ services:
     ports:
      - "8089:8089"
     volumes:
-     - ./locustfile.py:/mnt/locust/locustfile.py
+     - ./locust/locustfile.py:/mnt/locust/locustfile.py
     command: -f /mnt/locust/locustfile.py --host http://app:8080 --users 10 --spawn-rate 1 --run-time 1h --headless
     environment:
      - LOCUST_HOST=http://app:8080
     depends_on:
      - app
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
