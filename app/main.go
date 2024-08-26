@@ -49,6 +49,7 @@ type DelayedResponse struct {
 
 var (
 	tracer trace.Tracer
+	rng    *rand.Rand // New global random number generator
 
 	// Prometheus metrics
 	requestCounter = prometheus.NewCounterVec(
@@ -72,6 +73,10 @@ func init() {
 	// Register Prometheus metrics
 	prometheus.MustRegister(requestCounter)
 	prometheus.MustRegister(requestDuration)
+
+	// Initialize the random number generator with a time-based seed
+	source := rand.NewSource(time.Now().UnixNano())
+	rng = rand.New(source)
 }
 
 func initTracer() (*sdktrace.TracerProvider, error) {
@@ -150,7 +155,7 @@ func RandomDelay(w http.ResponseWriter, r *http.Request) {
 		defer span.End()
 	}
 
-	delay := rand.Intn(501) // Random delay between 0-500ms
+	delay := rng.Intn(501) // Random delay between 0-500ms
 	time.Sleep(time.Duration(delay) * time.Millisecond)
 
 	response := DelayedResponse{
@@ -177,8 +182,6 @@ func FailingEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	tp, err := initTracer()
 	if err != nil {
 		log.Fatalf("Failed to initialize tracer: %v", err)
