@@ -124,6 +124,8 @@ Note: The Locust service is configured with an increased open file limit (65536)
 
 3. **No data in Grafana**: Verify that Prometheus and Jaeger are successfully scraping data from your application. Check the Prometheus targets page and Jaeger search page to confirm data is being collected.
 
+4. **Permission Denied on Mounted Files**: Vertify Context and Setting of Selinux or AppArmour (`sudo setenforce 0`)
+
 ## Performance Considerations
 
 - The current setup is designed for local development and testing. For production use, you would need to adjust configurations for security and scalability.

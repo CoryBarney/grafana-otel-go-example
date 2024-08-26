@@ -178,7 +178,53 @@ func RandomDelay(w http.ResponseWriter, r *http.Request) {
 // @Success 500 {string} string "Internal Server Error"
 // @Router /fail [get]
 func FailingEndpoint(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		requestDuration.WithLabelValues("GET", "/api/v1/fail").Observe(duration)
+	}()
+
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	requestCounter.WithLabelValues("GET", "/api/v1/fail", "500").Inc()
+
+}
+
+// loggingMiddleware is a custom middleware for logging requests
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		// Create a custom ResponseWriter to capture the status code
+		lrw := newLoggingResponseWriter(w)
+
+		// Call the next handler
+		next.ServeHTTP(lrw, r)
+
+		// Log the request details
+		duration := time.Since(start)
+		log.Printf(
+			"Method: %s | Path: %s | Status: %d | Duration: %v",
+			r.Method,
+			r.URL.Path,
+			lrw.statusCode,
+			duration,
+		)
+	})
+}
+
+// loggingResponseWriter is a custom ResponseWriter that captures the status code
+type loggingResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+	return &loggingResponseWriter{w, http.StatusOK}
+}
+
+func (lrw *loggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
 }
 
 func main() {
@@ -195,6 +241,9 @@ func main() {
 	tracer = tp.Tracer("simple_http_sentence")
 
 	r := mux.NewRouter()
+
+	// Apply the logging middleware to all routes
+	r.Use(loggingMiddleware)
 
 	r.Use(otelmux.Middleware("simple_http_sentence"))
 

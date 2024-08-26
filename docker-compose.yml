@@ -46,7 +46,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
 
   app:
-    build: .
+    build: app/.
     ports:
       - "8080:8080"
     depends_on:
