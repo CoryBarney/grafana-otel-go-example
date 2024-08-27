@@ -21,7 +21,7 @@ This project demonstrates a Go application integrated with a comprehensive obser
 1. Clone this repository:
    ```
    git clone git@github.com:CoryBarney/grafana-otel-go-example.git
-   cd <git@github.com:CoryBarney/grafana-otel-go-example
+   cd grafana-otel-go-example
    ```
 
 2. Build and start the services:
